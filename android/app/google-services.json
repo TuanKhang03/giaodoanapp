@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "227890372429",
+    "project_id": "giaodoan36",
+    "storage_bucket": "giaodoan36.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:227890372429:android:7560c3b16b1d245b7ee104",
+        "android_client_info": {
+          "package_name": "com.example.giaodoanapp"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCz8Tkerrq911J4aF_ajryR7-eYh6JmNow"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
