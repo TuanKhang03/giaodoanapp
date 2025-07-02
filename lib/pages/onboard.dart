@@ -1,6 +1,5 @@
 // ignore: unused_import
 import 'package:flutter/material.dart';
-import 'package:mobileapp/pages/home.dart';
 import 'package:mobileapp/pages/signup.dart';
 import 'package:mobileapp/widget/content_model.dart';
 import 'package:mobileapp/widget/widget_support.dart';

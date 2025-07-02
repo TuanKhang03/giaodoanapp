@@ -1,7 +1,7 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:mobileapp/pages/buttonNav.dart';
-import 'package:mobileapp/pages/forgotpassword.dart';
+//import 'package:mobileapp/pages/forgotpassword.dart';
 import 'package:mobileapp/pages/signup.dart';
 import 'package:mobileapp/widget/widget_support.dart';
 
@@ -15,8 +15,8 @@ class LogIn extends StatefulWidget {
 class _LogInState extends State<LogIn> {
   String email = '', password = '';
   final _formKey = GlobalKey<FormState>();
-  TextEditingController useremailController = new TextEditingController();
-  TextEditingController userpasswordController = new TextEditingController();
+  TextEditingController useremailController = TextEditingController();
+  TextEditingController userpasswordController = TextEditingController();
   userLogin() async {
     try {
       await FirebaseAuth.instance.signInWithEmailAndPassword(
@@ -148,24 +148,24 @@ class _LogInState extends State<LogIn> {
                                 prefixIcon: Icon(Icons.password_outlined),
                               ),
                             ),
-                            SizedBox(height: 20),
-                            GestureDetector(
-                              onTap: () {
-                                Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                    builder: (context) => ForgotPassword(),
-                                  ),
-                                );
-                              },
-                              child: Container(
-                                alignment: Alignment.topRight,
-                                child: Text(
-                                  "Quên mật khẩu?",
-                                  style: AppWidget.SemiBoldTextFeildStyle(),
-                                ),
-                              ),
-                            ),
+                            // SizedBox(height: 20),
+                            // GestureDetector(
+                            //   onTap: () {
+                            //     Navigator.push(
+                            //       context,
+                            //       MaterialPageRoute(
+                            //         builder: (context) => ForgotPassword(),
+                            //       ),
+                            //     );
+                            //   },
+                            //   child: Container(
+                            //     alignment: Alignment.topRight,
+                            //     child: Text(
+                            //       "Quên mật khẩu?",
+                            //       style: AppWidget.SemiBoldTextFeildStyle(),
+                            //     ),
+                            //   ),
+                            // ),
                             SizedBox(height: 80),
                             GestureDetector(
                               onTap: () {

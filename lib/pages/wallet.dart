@@ -2,6 +2,8 @@ import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_stripe/flutter_stripe.dart';
+import 'package:mobileapp/pages/service/Shared_pref.dart';
+import 'package:mobileapp/pages/service/database.dart';
 import 'package:mobileapp/widget/app_constant.dart';
 import 'package:mobileapp/widget/widget_support.dart';
 import 'package:http/http.dart' as http;
@@ -15,11 +17,32 @@ class Wallet extends StatefulWidget {
 }
 
 class _WalletState extends State<Wallet> {
+String?wallet , id;
+int? add;
+getthesharedpref() async {
+     wallet = await SharedPreferenceHelper().getUserWallet();
+     id = await SharedPreferenceHelper().getUserID();
+    setState(() {
+    });
+  }
+  ontheload()async{
+    await getthesharedpref();
+    setState(() {
+      
+    });
+  }
+  @override
+  void initState() {
+    ontheload();
+    super.initState();
+  }
+
+
   Map<String, dynamic>? paymentIntent;
   @override
   Widget build(BuildContext context) {
     return  Scaffold(
-      body: Container(
+      body: wallet == null? CircularProgressIndicator(): Container(
         margin: EdgeInsets.only(top: 60.0),
         child : Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -45,7 +68,7 @@ class _WalletState extends State<Wallet> {
                   children: [
                   Text("Ví của bạn", style: AppWidget.LigthtlineTextFeildStyle(),),
                   SizedBox(height: 5.0,),
-                  Text("\$" "100.000 VND", style: AppWidget.boldTextFeildStyle(),)
+                  Text("\$" + wallet!, style: AppWidget.boldTextFeildStyle(),)
                 ],),
                 
             ],),
@@ -106,16 +129,22 @@ class _WalletState extends State<Wallet> {
                   
               ],
             ),
+
             SizedBox(height: 50.0,),
-            Container(
-              margin: EdgeInsets.symmetric(horizontal: 20.0),
-              padding: EdgeInsets.symmetric(vertical: 12.0),
-              width: MediaQuery.of(context).size.width,
-              decoration: BoxDecoration(
-                color: Color(0xff008080), borderRadius: BorderRadius.circular(8)
-              ),
-              child: Center(child: Text("Nạp tiền", style: TextStyle(color: Colors.white, fontSize: 16.0, fontFamily: 'Roboto',fontWeight:FontWeight.bold),),
-            ),),
+            GestureDetector(
+              onTap: () {
+                makePayment("");
+              },
+              child: Container(
+                margin: EdgeInsets.symmetric(horizontal: 20.0),
+                padding: EdgeInsets.symmetric(vertical: 12.0),
+                width: MediaQuery.of(context).size.width,
+                decoration: BoxDecoration(
+                  color: Color(0xff008080), borderRadius: BorderRadius.circular(8)
+                ),
+                child: Center(child: Text("Nạp tiền", style: TextStyle(color: Colors.white, fontSize: 16.0, fontFamily: 'Roboto',fontWeight:FontWeight.bold),),
+              ),),
+            ),
           ],
         ),
       ),
@@ -139,6 +168,10 @@ class _WalletState extends State<Wallet> {
   displayPaymentSheet(String amount) async {
     try {
       await Stripe.instance.presentPaymentSheet().then((value) async {
+
+        add = int.parse(wallet!) + int.parse(amount);
+        await SharedPreferenceHelper().saveUserWallet(add.toString());
+        await DatabaseMethods().UpdateUserWallet(id!, add.toString());
         showDialog(context: context, builder:(_) =>AlertDialog(
           content: Column(
             mainAxisSize: MainAxisSize.min,
@@ -149,7 +182,8 @@ class _WalletState extends State<Wallet> {
             ],)
           ],),
         ));
-        
+        await getthesharedpref();
+
         paymentIntent = null; 
       }).onError((error, stackTrace) {
         print('Error is: $error $stackTrace');
@@ -189,3 +223,5 @@ class _WalletState extends State<Wallet> {
     return calculatedAmount.toString();
   }
 }
+
+
