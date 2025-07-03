@@ -1,9 +1,5 @@
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
-import 'package:mobileapp/pages/buttonNav.dart';
-import 'package:mobileapp/pages/home.dart';
-import 'package:mobileapp/pages/onboard.dart';
-import 'package:mobileapp/admin/admin_login.dart';
 import 'package:mobileapp/admin/home_admin.dart';
 import 'package:flutter_stripe/flutter_stripe.dart';
 import 'package:mobileapp/widget/app_constant.dart';

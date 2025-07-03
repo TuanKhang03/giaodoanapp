@@ -1,5 +1,4 @@
 import 'dart:convert';
-import 'dart:math';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_stripe/flutter_stripe.dart';
@@ -20,7 +19,7 @@ class Wallet extends StatefulWidget {
 class _WalletState extends State<Wallet> {
 String?wallet , id;
 int? add;
-TextEditingController amountcontroller = TextEditingController();
+TextEditingController amountcontroller = new TextEditingController();
 getthesharedpref() async {
      wallet = await SharedPreferenceHelper().getUserWallet();
      id = await SharedPreferenceHelper().getUserID();
