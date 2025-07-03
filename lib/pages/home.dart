@@ -1,5 +1,3 @@
-import 'dart:math';
-import 'package:mobileapp/pages/buttonNav.dart';
 import 'package:flutter/material.dart';
 import 'package:mobileapp/pages/detail.dart';
 import 'package:mobileapp/widget/widget_support.dart';

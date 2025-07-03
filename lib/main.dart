@@ -1,10 +1,16 @@
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
+import 'package:mobileapp/pages/buttonNav.dart';
+import 'package:mobileapp/pages/home.dart';
+import 'package:mobileapp/pages/onboard.dart';
 import 'package:mobileapp/admin/admin_login.dart';
 import 'package:mobileapp/admin/home_admin.dart';
+import 'package:flutter_stripe/flutter_stripe.dart';
+import 'package:mobileapp/widget/app_constant.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  Stripe.publishableKey = publishableKey;
   await Firebase.initializeApp();
   runApp(const MyApp());
 }
@@ -15,7 +21,7 @@ class MyApp extends StatelessWidget {
   // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
+        return MaterialApp(
         title: 'Flutter Demo',
         debugShowCheckedModeBanner: false,
         theme: ThemeData(
