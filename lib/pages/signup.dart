@@ -2,7 +2,12 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:mobileapp/pages/buttonNav.dart';
 import 'package:mobileapp/pages/login.dart';
+import 'package:mobileapp/pages/service/Shared_pref.dart';
+import 'package:mobileapp/pages/service/database.dart';
 import 'package:mobileapp/widget/widget_support.dart';
+import 'package:random_string/random_string.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+
 
 class SignUp extends StatefulWidget {
   const SignUp({super.key});
@@ -13,56 +18,66 @@ class SignUp extends StatefulWidget {
 
 class _SignUpState extends State<SignUp> {
   String email = "", password = "", name = "";
-  TextEditingController nameController = new TextEditingController();
+  TextEditingController nameController = TextEditingController();
 
-  TextEditingController passwordController = new TextEditingController();
+  TextEditingController passwordController = TextEditingController();
 
-  TextEditingController emailController = new TextEditingController();
+  TextEditingController emailController = TextEditingController();
 
   final _formKey = GlobalKey<FormState>();
 
   registration() async {
-    if (password != null) {
-      try {
-        UserCredential userCredential = await FirebaseAuth.instance
-            .createUserWithEmailAndPassword(email: email, password: password);
+    try {
+      UserCredential userCredential = await FirebaseAuth.instance
+          .createUserWithEmailAndPassword(email: email, password: password);
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            "Đăng kí thành công!",
+            style: TextStyle(fontSize: 20),
+          ),
+        ),
+      );
+      String Id = randomAlphaNumeric(10);
+      Map<String, dynamic> addUserInfo = {
+        "name": nameController.text,
+        "Email": emailController.text,
+        "wallet": "0",
+        "Id": Id,
+      };
+      await DatabaseMethods().addUserDetail(addUserInfo, Id);
+      await SharedPreferenceHelper().saveUserName(nameController.text);
+      await SharedPreferenceHelper().saveUserEmail(emailController.text);
+      await SharedPreferenceHelper().saveUserWallet('0');
+      await SharedPreferenceHelper().saveUserID(Id);
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (context) => buttonNav()),
+      );
+    } on FirebaseException catch (e) {
+      if (e.code == 'weak-password') {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
+            backgroundColor: Colors.redAccent,
             content: Text(
-              "Đăng kí thành công!",
-              style: TextStyle(fontSize: 20),
+              "Mật khẩu quá yếu!",
+              style: TextStyle(fontSize: 18),
             ),
           ),
         );
-        Navigator.pushReplacement(
-          context,
-          MaterialPageRoute(builder: (context) => buttonNav()),
+      } else if (e.code == 'email đã được sử dụng') {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            backgroundColor: Colors.orangeAccent,
+            content: Text(
+              "tài khoản đã tồn tại!",
+              style: TextStyle(fontSize: 18),
+            ),
+          ),
         );
-      } on FirebaseException catch (e) {
-        if (e.code == 'weak-password') {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              backgroundColor: Colors.redAccent,
-              content: Text(
-                "Mật khẩu quá yếu!",
-                style: TextStyle(fontSize: 18),
-              ),
-            ),
-          );
-        } else if (e.code == 'email đã được sử dụng') {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              backgroundColor: Colors.orangeAccent,
-              content: Text(
-                "tài khoản đã tồn tại!",
-                style: TextStyle(fontSize: 18),
-              ),
-            ),
-          );
-        }
       }
     }
-  }
+    }
 
   @override
   Widget build(BuildContext context) {
