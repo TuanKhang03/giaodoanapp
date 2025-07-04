@@ -69,7 +69,7 @@ getthesharedpref() async {
                   children: [
                   Text("Ví của bạn", style: AppWidget.LigthtlineTextFeildStyle(),),
                   SizedBox(height: 5.0,),
-                  Text("\$${wallet!}", style: AppWidget.boldTextFeildStyle(),)
+                  Text("${wallet!}đ", style: AppWidget.boldTextFeildStyle(),)
                 ],),
                 
             ],),
@@ -92,7 +92,7 @@ getthesharedpref() async {
                         decoration: BoxDecoration(
                           border: Border.all(color: Color(0xffe9e2e2)),
                           borderRadius: BorderRadius.circular(5)),
-                          child: Text("\$" "50.000", style: AppWidget.SemiBoldTextFeildStyle(),)),
+                          child: Text("50.000đ", style: AppWidget.SemiBoldTextFeildStyle(),)),
                     ), 
                     GestureDetector(
                       onTap: () {
@@ -103,7 +103,7 @@ getthesharedpref() async {
                         decoration: BoxDecoration(
                           border: Border.all(color: Color(0xffe9e2e2)),
                           borderRadius: BorderRadius.circular(5)),
-                          child: Text("\$" "100.000", style: AppWidget.SemiBoldTextFeildStyle(),)),
+                          child: Text("100.000đ", style: AppWidget.SemiBoldTextFeildStyle(),)),
                     ), 
                       GestureDetector(
                       onTap: () {
@@ -114,7 +114,7 @@ getthesharedpref() async {
                         decoration: BoxDecoration(
                           border: Border.all(color: Color(0xffe9e2e2)),
                           borderRadius: BorderRadius.circular(5)),
-                          child: Text("\$" "200.000", style: AppWidget.SemiBoldTextFeildStyle(),)),
+                          child: Text("200.000đ", style: AppWidget.SemiBoldTextFeildStyle(),)),
                     ), 
                       GestureDetector(
                       onTap: () {
@@ -125,7 +125,7 @@ getthesharedpref() async {
                         decoration: BoxDecoration(
                           border: Border.all(color: Color(0xffe9e2e2)),
                           borderRadius: BorderRadius.circular(5)),
-                          child: Text("\$" "500.000", style: AppWidget.SemiBoldTextFeildStyle(),)),
+                          child: Text("500.000đ", style: AppWidget.SemiBoldTextFeildStyle(),)),
                     ), 
                   
               ],
