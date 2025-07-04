@@ -6,7 +6,6 @@ import 'package:mobileapp/pages/service/Shared_pref.dart';
 import 'package:mobileapp/pages/service/database.dart';
 import 'package:mobileapp/widget/widget_support.dart';
 import 'package:random_string/random_string.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 
 
 class SignUp extends StatefulWidget {

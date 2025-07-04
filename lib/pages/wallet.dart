@@ -19,6 +19,7 @@ class Wallet extends StatefulWidget {
 class _WalletState extends State<Wallet> {
 String?wallet , id;
 int? add;
+TextEditingController amountcontroller = new TextEditingController();
 getthesharedpref() async {
      wallet = await SharedPreferenceHelper().getUserWallet();
      id = await SharedPreferenceHelper().getUserID();
@@ -68,7 +69,7 @@ getthesharedpref() async {
                   children: [
                   Text("Ví của bạn", style: AppWidget.LigthtlineTextFeildStyle(),),
                   SizedBox(height: 5.0,),
-                  Text("\$" + wallet!, style: AppWidget.boldTextFeildStyle(),)
+                  Text("\$${wallet!}", style: AppWidget.boldTextFeildStyle(),)
                 ],),
                 
             ],),
@@ -133,7 +134,7 @@ getthesharedpref() async {
             SizedBox(height: 50.0,),
             GestureDetector(
               onTap: () {
-                makePayment("");
+                openEdit(amountcontroller, context, makePayment);
               },
               child: Container(
                 margin: EdgeInsets.symmetric(horizontal: 20.0),
@@ -224,4 +225,91 @@ getthesharedpref() async {
   }
 }
 
+
+Future openEdit(
+  TextEditingController amountcontroller,
+  BuildContext context,
+  Future<void> Function(String) makePaymentCallback,
+) =>
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        content: SingleChildScrollView(
+          child: Container(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  children: [
+                    GestureDetector(
+                        onTap: () {
+                          Navigator.pop(context);
+                        },
+                        child: Icon(Icons.cancel)),
+                    SizedBox(
+                      width: 10.0,
+                    ),
+                    Center(
+                        child: Text("Nạp tiền",
+                            style: TextStyle(
+                              color: Color(0xff008080),
+                              fontWeight: FontWeight.bold,
+                            )))
+                  ],
+                ),
+                SizedBox(
+                  height: 20.0,
+                ),
+                Text("Số tiền"),
+                SizedBox(
+                  height: 10.0,
+                ),
+                Container(
+                    padding: EdgeInsets.symmetric(horizontal: 10.0),
+                    decoration: BoxDecoration(
+                        border: Border.all(
+                          color: Colors.black38,
+                          width: 2.0,
+                        ),
+                        borderRadius: BorderRadius.circular(10)),
+                    child: TextField(
+                      controller: amountcontroller,
+                      decoration: InputDecoration(
+                        border: InputBorder.none,
+                        hintText: "Nhập số tiền bạn muốn nạp",
+                      ),
+                    )),
+                SizedBox(
+                  height: 20.0,
+                ),
+                Center(
+                  child: GestureDetector(
+                    onTap: () {
+                      Navigator.pop(context);
+                      makePaymentCallback(amountcontroller.text);
+                    },
+                    child: Container(
+                      width: 100,
+                      padding: EdgeInsets.all(5),
+                      decoration: BoxDecoration(
+                        color: Color(0xff008080),
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                      child: Center(
+                        child: Text(
+                          "Thanh toán",
+                          style: TextStyle(
+                            color: Colors.white,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                )
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
 
