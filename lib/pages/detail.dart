@@ -1,15 +1,40 @@
 import 'package:flutter/material.dart';
+import 'package:mobileapp/pages/service/Shared_pref.dart';
+import 'package:mobileapp/pages/service/database.dart';
 import 'package:mobileapp/widget/widget_support.dart';
 
 class Detail extends StatefulWidget {
-  const Detail({super.key});
+  String image, name, detail, price;
+  Detail({
+    required this.image,
+    required this.name,
+    required this.detail,
+    required this.price,
+  });
 
   @override
   State<Detail> createState() => _DetailState();
 }
 
 class _DetailState extends State<Detail> {
-  int a = 1;
+  int a = 1, total = 0;
+  String? id;
+  getthesharedpref() async {
+    id = await SharedPreferenceHelper().getUserID();
+    setState(() {});
+  }
+
+  ontheload() async {
+    await getthesharedpref();
+  }
+
+  @override
+  void initState() {
+    total = int.parse(widget.price);
+    super.initState();
+    ontheload();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -27,8 +52,8 @@ class _DetailState extends State<Detail> {
                 color: Colors.black,
               ),
             ),
-            Image.asset(
-              "images/salad2.png",
+            Image.network(
+              widget.image,
               width: MediaQuery.of(context).size.width,
               height: MediaQuery.of(context).size.height / 2.5,
               fit: BoxFit.fill,
@@ -41,12 +66,8 @@ class _DetailState extends State<Detail> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      "Món rau taco hash",
+                      widget.name,
                       style: AppWidget.SemiBoldTextFeildStyle(),
-                    ),
-                    Text(
-                      "gà trộn salad",
-                      style: AppWidget.boldTextFeildStyle(),
                     ),
                   ],
                 ),
@@ -55,6 +76,7 @@ class _DetailState extends State<Detail> {
                   onTap: () {
                     if (a > 1) {
                       --a;
+                      total = total - int.parse(widget.price);
                     }
 
                     setState(() {});
@@ -73,6 +95,7 @@ class _DetailState extends State<Detail> {
                 GestureDetector(
                   onTap: () {
                     ++a;
+                    total = total + int.parse(widget.price);
                     setState(() {});
                   },
                   child: Container(
@@ -87,7 +110,7 @@ class _DetailState extends State<Detail> {
             ),
             SizedBox(height: 20),
             Text(
-              "Gà trộn salad là một món ăn phổ biến, kết hợp hài hòa giữa vị ngọt mềm của thịt gà và sự tươi mát, giòn ngon của các loại rau củ. Đây là lựa chọn ưa thích cho những ai theo đuổi chế độ ăn uống lành mạnh, hay đơn giản là muốn một bữa ăn nhẹ nhàng,",
+              widget.detail,
               maxLines: 3,
               style: AppWidget.LigthtlineTextFeildStyle(),
             ),
@@ -118,43 +141,63 @@ class _DetailState extends State<Detail> {
                         style: AppWidget.SemiBoldTextFeildStyle(),
                       ),
                       Text(
-                        "45.000 VND",
+                        total.toString(),
                         style: AppWidget.HeadlineTextFeildStyle(),
                       ),
                     ],
                   ),
-                  Container(
-                    width: MediaQuery.of(context).size.width / 2,
-                    padding: EdgeInsets.all(8),
-                    decoration: BoxDecoration(
-                      color: Colors.black,
-                      borderRadius: BorderRadius.circular(10),
-                    ),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.end,
-                      children: [
-                        Text(
-                          "Thêm vào giỏ hàng",
-                          style: TextStyle(
-                            color: Colors.white,
-                            fontSize: 18,
-                            fontFamily: 'Roboto',
+                  GestureDetector(
+                    onTap: () async {
+                      Map<String, dynamic> addFoodtoCart = {
+                        "Name": widget.name,
+                        "Quantity": a.toString(),
+                        "Total": total.toString(),
+                        "Image": widget.image,
+                      };
+                      await DatabaseMethods().addFoodtoCart(addFoodtoCart, id!);
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(
+                          backgroundColor: Colors.orangeAccent,
+                          content: Text(
+                            "Đã thêm vào giỏ hàng",
+                            style: TextStyle(fontSize: 18),
                           ),
                         ),
-                        SizedBox(width: 30),
-                        Container(
-                          padding: EdgeInsets.all(3),
-                          decoration: BoxDecoration(
-                            color: Colors.grey,
-                            borderRadius: BorderRadius.circular(8),
+                      );
+                    },
+                    child: Container(
+                      width: MediaQuery.of(context).size.width / 1.6,
+                      padding: EdgeInsets.all(8),
+                      decoration: BoxDecoration(
+                        color: Colors.black,
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.end,
+                        children: [
+                          Text(
+                            "Thêm vào giỏ hàng",
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontSize: 18,
+                              fontFamily: 'Roboto',
+                            ),
                           ),
-                          child: Icon(
-                            Icons.shopping_cart_outlined,
-                            color: Colors.white,
+                          SizedBox(width: 30),
+                          Container(
+                            padding: EdgeInsets.all(3),
+                            decoration: BoxDecoration(
+                              color: Colors.grey,
+                              borderRadius: BorderRadius.circular(8),
+                            ),
+                            child: Icon(
+                              Icons.shopping_cart_outlined,
+                              color: Colors.white,
+                            ),
                           ),
-                        ),
-                        SizedBox(width: 10),
-                      ],
+                          SizedBox(width: 10),
+                        ],
+                      ),
                     ),
                   ),
                 ],

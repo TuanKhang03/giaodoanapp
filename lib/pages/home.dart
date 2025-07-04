@@ -1,5 +1,7 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:mobileapp/pages/detail.dart';
+import 'package:mobileapp/pages/service/database.dart';
 import 'package:mobileapp/widget/widget_support.dart';
 
 class Home extends StatefulWidget {
@@ -11,53 +13,129 @@ class Home extends StatefulWidget {
 
 class _HomeState extends State<Home> {
   bool iceCream = false, pizza = false, salad = false, burger = false;
+  Stream? fooditemStream;
+  ontheload() async {
+    fooditemStream = await DatabaseMethods().getFoodItem("Pizza");
+    setState(() {});
+  }
+
   @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      body: Container(
-        margin: EdgeInsets.only(top: 50.0, left: 20.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Text(
-                  "Xin chào , TuanKhang",
-                  style: AppWidget.boldTextFeildStyle(),
-                ),
-                Container(
-                  margin: EdgeInsets.only(right: 20.0),
-                  padding: EdgeInsets.all(3),
-                  decoration: BoxDecoration(
-                    color: Colors.black,
-                    borderRadius: BorderRadius.circular(8),
-                  ),
-                  child: Icon(
-                    Icons.shopping_cart_outlined,
-                    color: Colors.white,
-                  ),
-                ),
-              ],
-            ),
-            SizedBox(height: 20.0),
-            Text("Món Ăn ngon", style: AppWidget.HeadlineTextFeildStyle()),
-            Text(
-              "Khám phá và những món ăn tuyệt vời ",
-              style: AppWidget.LigthtlineTextFeildStyle(),
-            ),
-            SizedBox(height: 20.0),
-            Container(margin: EdgeInsets.only(right: 20.0), child: showItem()),
-            SizedBox(height: 30.0),
-            SingleChildScrollView(
-              scrollDirection: Axis.horizontal,
-              child: Row(
-                children: [
-                  GestureDetector(
+  void initState() {
+    ontheload();
+    super.initState();
+  }
+
+  Widget allItemVertically() {
+    return StreamBuilder(
+      stream: fooditemStream,
+      builder: (context, AsyncSnapshot snapshot) {
+        return snapshot.hasData
+            ? ListView.builder(
+                padding: EdgeInsets.zero,
+                itemCount: snapshot.data.docs.length,
+                shrinkWrap: true,
+                scrollDirection: Axis.vertical,
+                itemBuilder: (context, index) {
+                  DocumentSnapshot ds = snapshot.data.docs[index];
+                  return GestureDetector(
                     onTap: () {
                       Navigator.push(
                         context,
-                        MaterialPageRoute(builder: (context) => Detail()),
+                        MaterialPageRoute(
+                          builder: (context) => Detail(
+                            detail: ds["Detail"],
+                            image: ds['Image'],
+                            name: ds['Name'],
+                            price: ds['Price'],
+                          ),
+                        ),
+                      );
+                    },
+                    child: Container(
+                      margin: EdgeInsets.only(right: 20.0),
+                      child: Material(
+                        elevation: 5.0,
+                        borderRadius: BorderRadius.circular(20),
+                        child: Container(
+                          padding: EdgeInsets.all(5.0),
+                          child: Row(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Image.network(
+                                ds['Image'],
+                                height: 120,
+                                width: 120,
+                                fit: BoxFit.cover,
+                              ),
+                              SizedBox(width: 20.0),
+                              Column(
+                                children: [
+                                  SizedBox(
+                                    width:
+                                        MediaQuery.of(context).size.width / 2,
+                                    child: Text(
+                                      ds['Name'],
+                                      style: AppWidget.SemiBoldTextFeildStyle(),
+                                    ),
+                                  ),
+                                  SizedBox(width: 5.0),
+                                  SizedBox(
+                                    width:
+                                        MediaQuery.of(context).size.width / 2,
+                                    child: Text(
+                                      "rat ngon",
+                                      style:
+                                          AppWidget.LigthtlineTextFeildStyle(),
+                                    ),
+                                  ),
+                                  SizedBox(width: 5.0),
+                                  SizedBox(
+                                    width:
+                                        MediaQuery.of(context).size.width / 2,
+                                    child: Text(
+                                      ds['Price'] + "đ",
+                                      style: AppWidget.SemiBoldTextFeildStyle(),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ),
+                  );
+                },
+              )
+            : CircularProgressIndicator();
+      },
+    );
+  }
+
+  Widget allItem() {
+    return StreamBuilder(
+      stream: fooditemStream,
+      builder: (context, AsyncSnapshot snapshot) {
+        return snapshot.hasData
+            ? ListView.builder(
+                padding: EdgeInsets.zero,
+                itemCount: snapshot.data.docs.length,
+                shrinkWrap: true,
+                scrollDirection: Axis.horizontal,
+                itemBuilder: (context, index) {
+                  DocumentSnapshot ds = snapshot.data.docs[index];
+                  return GestureDetector(
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => Detail(
+                            detail: ds["Detail"],
+                            image: ds['Image'],
+                            name: ds['Name'],
+                            price: ds['Price'],
+                          ),
+                        ),
                       );
                     },
                     child: Container(
@@ -70,24 +148,27 @@ class _HomeState extends State<Home> {
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              Image.asset(
-                                "images/salad2.png",
-                                height: 150,
-                                width: 150,
-                                fit: BoxFit.cover,
+                              ClipRRect(
+                                borderRadius: BorderRadius.circular(20),
+                                child: Image.network(
+                                  ds['Image'],
+                                  height: 150,
+                                  width: 150,
+                                  fit: BoxFit.cover,
+                                ),
                               ),
                               Text(
-                                "Món rau taco hash",
+                                ds['Name'],
                                 style: AppWidget.SemiBoldTextFeildStyle(),
                               ),
                               SizedBox(height: 5.0),
                               Text(
-                                "Sạch và tốt",
+                                ds['Detail'],
                                 style: AppWidget.LigthtlineTextFeildStyle(),
                               ),
                               SizedBox(height: 5.0),
                               Text(
-                                "45.000đ",
+                                ds['Price'] + "đ",
                                 style: AppWidget.SemiBoldTextFeildStyle(),
                               ),
                             ],
@@ -95,97 +176,61 @@ class _HomeState extends State<Home> {
                         ),
                       ),
                     ),
+                  );
+                },
+              )
+            : CircularProgressIndicator();
+      },
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      body: SingleChildScrollView(
+        child: Container(
+          margin: EdgeInsets.only(top: 50.0, left: 20.0),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text(
+                    "Xin chào , TuanKhang",
+                    style: AppWidget.boldTextFeildStyle(),
                   ),
-                  SizedBox(width: 15.0),
                   Container(
-                    margin: EdgeInsets.all(4.0),
-                    child: Material(
-                      elevation: 5.0,
-                      borderRadius: BorderRadius.circular(20),
-                      child: Container(
-                        padding: EdgeInsets.all(14.0),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Image.asset(
-                              "images/salad2.png",
-                              height: 150,
-                              width: 150,
-                              fit: BoxFit.cover,
-                            ),
-                            Text(
-                              "Rau Trộn",
-                              style: AppWidget.SemiBoldTextFeildStyle(),
-                            ),
-                            SizedBox(height: 5.0),
-                            Text(
-                              "Sạch và tốt",
-                              style: AppWidget.LigthtlineTextFeildStyle(),
-                            ),
-                            SizedBox(height: 5.0),
-                            Text(
-                              "45.000đ",
-                              style: AppWidget.SemiBoldTextFeildStyle(),
-                            ),
-                          ],
-                        ),
-                      ),
+                    margin: EdgeInsets.only(right: 20.0),
+                    padding: EdgeInsets.all(3),
+                    decoration: BoxDecoration(
+                      color: Colors.black,
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    child: Icon(
+                      Icons.shopping_cart_outlined,
+                      color: Colors.white,
                     ),
                   ),
                 ],
               ),
-            ),
-            SizedBox(height: 30.0),
-            Container(
-              margin: EdgeInsets.only(right: 20.0),
-              child: Material(
-                elevation: 5.0,
-                borderRadius: BorderRadius.circular(20),
-                child: Container(
-                  padding: EdgeInsets.all(5.0),
-                  child: Row(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Image.asset(
-                        "images/salad2.png",
-                        height: 120,
-                        width: 120,
-                        fit: BoxFit.cover,
-                      ),
-                      SizedBox(width: 20.0),
-                      Column(
-                        children: [
-                          SizedBox(
-                            width: MediaQuery.of(context).size.width / 2,
-                            child: Text(
-                              "Rau trộn gà địa trung hải",
-                              style: AppWidget.SemiBoldTextFeildStyle(),
-                            ),
-                          ),
-                          SizedBox(width: 5.0),
-                          SizedBox(
-                            width: MediaQuery.of(context).size.width / 2,
-                            child: Text(
-                              "Sạch và tốt",
-                              style: AppWidget.LigthtlineTextFeildStyle(),
-                            ),
-                          ),
-                          SizedBox(width: 5.0),
-                          SizedBox(
-                            width: MediaQuery.of(context).size.width / 2,
-                            child: Text(
-                              "36.000đ",
-                              style: AppWidget.SemiBoldTextFeildStyle(),
-                            ),
-                          ),
-                        ],
-                      ),
-                    ],
-                  ),
-                ),
+              SizedBox(height: 20.0),
+              Text("Món Ăn ngon", style: AppWidget.HeadlineTextFeildStyle()),
+              Text(
+                "Khám phá và những món ăn tuyệt vời ",
+                style: AppWidget.LigthtlineTextFeildStyle(),
               ),
-            ),
-          ],
+              SizedBox(height: 20.0),
+              Container(
+                margin: EdgeInsets.only(right: 20.0),
+                child: showItem(),
+              ),
+              SizedBox(height: 30.0),
+              Container(height: 280, child: allItem()),
+              SizedBox(height: 30.0),
+              allItemVertically(),
+            ],
+          ),
         ),
       ),
     );
@@ -196,11 +241,12 @@ class _HomeState extends State<Home> {
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
         GestureDetector(
-          onTap: () {
+          onTap: () async {
             iceCream = true;
             pizza = false;
             salad = false;
             burger = false;
+            fooditemStream = await DatabaseMethods().getFoodItem("Ice-cream");
             setState(() {});
           },
           child: Material(
@@ -223,11 +269,12 @@ class _HomeState extends State<Home> {
           ),
         ),
         GestureDetector(
-          onTap: () {
+          onTap: () async {
             iceCream = false;
             pizza = true;
             salad = false;
             burger = false;
+            fooditemStream = await DatabaseMethods().getFoodItem("Pizza");
             setState(() {});
           },
           child: Material(
@@ -250,11 +297,12 @@ class _HomeState extends State<Home> {
           ),
         ),
         GestureDetector(
-          onTap: () {
+          onTap: () async {
             iceCream = false;
             pizza = false;
             salad = true;
             burger = false;
+            fooditemStream = await DatabaseMethods().getFoodItem("Salad");
             setState(() {});
           },
           child: Material(
@@ -277,11 +325,12 @@ class _HomeState extends State<Home> {
           ),
         ),
         GestureDetector(
-          onTap: () {
+          onTap: () async {
             iceCream = false;
             pizza = false;
             salad = false;
             burger = true;
+            fooditemStream = await DatabaseMethods().getFoodItem("Burger");
             setState(() {});
           },
           child: Material(
