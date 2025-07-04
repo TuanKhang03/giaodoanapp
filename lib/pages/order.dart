@@ -1,4 +1,9 @@
+import 'dart:async';
+
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:mobileapp/pages/service/Shared_pref.dart';
+import 'package:mobileapp/pages/service/database.dart';
 import 'package:mobileapp/widget/widget_support.dart';
 
 class Order extends StatefulWidget {
@@ -10,8 +15,90 @@ class Order extends StatefulWidget {
 
 class _OrderState extends State<Order> {
 
+String? id, wallet;
+int total = 0, amount2= 0;
+void starttimer() {
+   Timer(Duration(seconds: 1),(){
+    amount2 = total;
+    setState(() {
+      
+    });
+   });
+  }
+getthesharedpref()async{
+  id = await SharedPreferenceHelper().getUserID();
+  wallet = await SharedPreferenceHelper().getUserWallet();
+  setState(() {
+    
+  });
+}
+ontheload()async{
+  await getthesharedpref();
+  foodStream = await DatabaseMethods().getFoodCart(id!);
+  setState(() {
+    
+  });
+}
+@override
+  void initState() {
+    ontheload();
+    starttimer();
+    super.initState();
+  }
+Stream? foodStream;
+Widget foodCart() {
+    return StreamBuilder(
+      stream: foodStream,
+      builder: (context, AsyncSnapshot snapshot) {
+        return snapshot.hasData
+            ? ListView.builder(
+                padding: EdgeInsets.zero,
+                itemCount: snapshot.data.docs.length,
+                shrinkWrap: true,
+                scrollDirection: Axis.vertical,
+                itemBuilder: (context, index) {
+                  DocumentSnapshot ds = snapshot.data.docs[index];
+                  total = total + int.parse(ds["Total"]);
+                  return Container(
+              margin: EdgeInsets.only(left: 20.0, right: 20.0, bottom: 10.0),
+              child: Material(
+                elevation: 5.0,
+                borderRadius: BorderRadius.circular(25),
+                child: Container(
+                  padding: EdgeInsets.all(10.0),
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(10), 
+                  ),
+                  child: Row(
+                    children: [
+                      Container(
+                      height: 90,
+                      width: 40,
+                      decoration: BoxDecoration(border: Border.all(), borderRadius: BorderRadius.circular(25)),
+                      child: Center(child: Text(ds["Quantity"])),
+                    ),
+                    SizedBox(width: 20.0,),
+                    ClipRRect(
+                      borderRadius: BorderRadius.circular(60),
+                      child: Image.network(ds["Image"], width: 90, height: 90, fit: BoxFit.cover,),),
+                      SizedBox(width: 20.0,),
+                      Column(
+                        children: [
+                          Text(ds["Name"], style: AppWidget.SemiBoldTextFeildStyle(),),
+                            Text(ds["Total"] +"\đ", style: AppWidget.SemiBoldTextFeildStyle(),)
+                        ],
+                      )
+                  ],),
+                ),
+              ),
+            );
+                },
+              )
+            : CircularProgressIndicator();
+      },
+    );
+  }
 
-  
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -34,38 +121,8 @@ class _OrderState extends State<Order> {
             ),
             SizedBox(height: 20.0,),
             Container(
-              margin: EdgeInsets.only(left: 20.0, right: 20.0),
-              child: Material(
-                elevation: 5.0,
-                borderRadius: BorderRadius.circular(25),
-                child: Container(
-                  padding: EdgeInsets.all(10.0),
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(10), 
-                  ),
-                  child: Row(
-                    children: [
-                      Container(
-                      height: 90,
-                      width: 40,
-                      decoration: BoxDecoration(border: Border.all(), borderRadius: BorderRadius.circular(25)),
-                      child: Center(child: Text("2")),
-                    ),
-                    SizedBox(width: 20.0,),
-                    ClipRRect(
-                      borderRadius: BorderRadius.circular(60),
-                      child: Image.asset("images/food.jpg", width: 90, height: 90, fit: BoxFit.cover,),),
-                      SizedBox(width: 20.0,),
-                      Column(
-                        children: [
-                          Text("Pizza", style: AppWidget.SemiBoldTextFeildStyle(),),
-                            Text("40.000đ", style: AppWidget.SemiBoldTextFeildStyle(),)
-                        ],
-                      )
-                  ],),
-                ),
-              ),
-            ),
+              height:MediaQuery.of(context).size.height/2,
+              child: foodCart()),
             Spacer(),
             Divider(),
             Padding(
@@ -74,17 +131,24 @@ class _OrderState extends State<Order> {
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   Text("Tổng tiền: ",style: AppWidget.boldTextFeildStyle(),),
-                  Text("40.000đ", style: AppWidget.SemiBoldTextFeildStyle(),)
+                  Text(total.toString()+"\đ", style: AppWidget.SemiBoldTextFeildStyle(),)
                 ],
               ),
             ),
             SizedBox(height: 20.0,),
-            Container(
-              padding: EdgeInsets.symmetric(vertical: 10.0),
-              width: MediaQuery.of(context).size.width,
-              decoration: BoxDecoration(color: Colors.black,borderRadius: BorderRadius.circular(10)),
-              margin: EdgeInsets.only(left: 20.0, right: 20.0, bottom: 20.0),
-              child: Center(child: Text("Thanh toán", style: TextStyle(color: Colors.white, fontSize: 20.0, fontWeight: FontWeight.bold),)),
+            GestureDetector(
+              onTap: ()async{
+                int amount = int.parse(wallet!) - amount2;
+                await DatabaseMethods().UpdateUserWallet(id!, amount.toString());
+                await SharedPreferenceHelper().saveUserWallet(amount.toString());
+              } ,
+              child: Container(
+                padding: EdgeInsets.symmetric(vertical: 10.0),
+                width: MediaQuery.of(context).size.width,
+                decoration: BoxDecoration(color: Colors.black,borderRadius: BorderRadius.circular(10)),
+                margin: EdgeInsets.only(left: 20.0, right: 20.0, bottom: 20.0),
+                child: Center(child: Text("Thanh toán", style: TextStyle(color: Colors.white, fontSize: 20.0, fontWeight: FontWeight.bold),)),
+              ),
             ),
           ],
         ),
