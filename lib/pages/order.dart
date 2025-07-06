@@ -66,6 +66,21 @@ class _OrderState extends State<Order> {
       builder: (context, AsyncSnapshot snapshot) {
         if (!snapshot.hasData) return CircularProgressIndicator();
         final docs = snapshot.data.docs;
+        if (docs.isEmpty) {
+          return Center(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Icon(Icons.shopping_cart_outlined, size: 80, color: Colors.grey),
+                SizedBox(height: 16),
+                Text(
+                  'Giỏ hàng của bạn đang trống',
+                  style: TextStyle(fontSize: 20, color: Colors.grey, fontWeight: FontWeight.bold),
+                ),
+              ],
+            ),
+          );
+        }
         total = 0;
         return ListView.builder(
           padding: EdgeInsets.zero,
@@ -96,7 +111,7 @@ class _OrderState extends State<Order> {
                   child: Row(
                     crossAxisAlignment: CrossAxisAlignment.center,
                     children: [
-                      // Quantity controls: number box, then up/down arrows outside
+                      // ...existing code...
                       Row(
                         children: [
                           Container(
