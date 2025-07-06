@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:mobileapp/pages/service/Shared_pref.dart';
 import 'package:mobileapp/pages/service/database.dart';
 import 'package:mobileapp/widget/widget_support.dart';
+import 'package:mobileapp/pages/Payment.dart';
 
 class Order extends StatefulWidget {
   const Order({super.key});
@@ -191,7 +192,7 @@ class _OrderState extends State<Order> {
                             style: AppWidget.SemiBoldTextFeildStyle(),
                           ),
                           Text(
-                            (pricePerItem * (_quantityValues[cartItemId] ?? quantity)).toString() + "\đ",
+                            "${pricePerItem * (_quantityValues[cartItemId] ?? quantity)}\đ",
                             style: AppWidget.SemiBoldTextFeildStyle(),
                           )
                         ],
@@ -378,56 +379,38 @@ class _OrderState extends State<Order> {
                     style: AppWidget.boldTextFeildStyle(),
                   ),
                   Text(
-                    total.toString() + "\đ",
+                    "$total\đ",
                     style: AppWidget.SemiBoldTextFeildStyle(),
                   )
                 ],
               ),
             ),
-            SizedBox(
-              height: 20.0,
-            ),
+            SizedBox(height: 20.0),
             GestureDetector(
-              onTap: () async {
-                int amount = int.parse(wallet!) - amount2;
-                await DatabaseMethods().UpdateUserWallet(id!, amount.toString());
-                await SharedPreferenceHelper().saveUserWallet(amount.toString());
-                await DatabaseMethods().clearFoodCart(id!); // Xoá giỏ hàng
-                setState(() {
-                  total = 0;
-                  amount2 = 0;
-                });
-                Flushbar(
-                  messageText: Center(
-                    child: Text(
-                      'Thanh toán thành công. Giỏ hàng đã được làm mới!',
-                      style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
-                    ),
-                  ),
-                  backgroundColor: Colors.green,
-                  borderRadius: BorderRadius.circular(10),
-                  margin: EdgeInsets.all(12),
-                  duration: Duration(seconds: 2),
-                  flushbarPosition: FlushbarPosition.TOP,
-                  icon: Icon(Icons.check_circle, color: Colors.white),
-                ).show(context);
+              onTap: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => const PaymentPage()),
+                );
               },
               child: Container(
                 padding: EdgeInsets.symmetric(vertical: 10.0),
                 width: MediaQuery.of(context).size.width,
                 decoration: BoxDecoration(
-                    color: Colors.black,
-                    borderRadius: BorderRadius.circular(10)),
-                margin:
-                    EdgeInsets.only(left: 20.0, right: 20.0, bottom: 20.0),
+                  color: Colors.black,
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                margin: EdgeInsets.only(left: 20.0, right: 20.0, bottom: 20.0),
                 child: Center(
-                    child: Text(
-                  "Thanh toán",
-                  style: TextStyle(
+                  child: Text(
+                    "Tiến hành thanh toán",
+                    style: TextStyle(
                       color: Colors.white,
                       fontSize: 20.0,
-                      fontWeight: FontWeight.bold),
-                )),
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ),
               ),
             ),
           ],

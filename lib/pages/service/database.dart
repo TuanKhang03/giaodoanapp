@@ -49,5 +49,25 @@ class DatabaseMethods {
   Future<Stream<QuerySnapshot>> getFoodCart(String id) async {
     return FirebaseFirestore.instance.collection("users").doc(id).collection("Cart").snapshots();
   }
- 
+  Future addOrderForUser(Map<String, dynamic> orderData, String userId) async {
+    return await FirebaseFirestore.instance
+        .collection('users')
+        .doc(userId)
+        .collection('orders')
+        .add(orderData);
+  }
+  Future createOrdersCollectionForUser(String userId) async {
+    final ordersRef = FirebaseFirestore.instance
+        .collection('users')
+        .doc(userId)
+        .collection('orders');
+    // Firestore sẽ tự tạo collection khi thêm document đầu tiên,
+    // nhưng nếu muốn tạo document rỗng để khởi tạo bảng:
+    await ordersRef.add({'init': true});
+    // Sau đó có thể xoá document 'init' này nếu không cần giữ lại
+    final docs = await ordersRef.where('init', isEqualTo: true).get();
+    for (final doc in docs.docs) {
+      await doc.reference.delete();
+    }
+  }
 }
