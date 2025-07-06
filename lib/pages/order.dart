@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'package:another_flushbar/flushbar.dart';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
@@ -92,6 +93,7 @@ class _OrderState extends State<Order> {
                     borderRadius: BorderRadius.circular(10),
                   ),
                   child: Row(
+                    crossAxisAlignment: CrossAxisAlignment.center,
                     children: [
                       // Quantity controls: number box, then up/down arrows outside
                       Row(
@@ -193,7 +195,54 @@ class _OrderState extends State<Order> {
                             style: AppWidget.SemiBoldTextFeildStyle(),
                           )
                         ],
-                      )
+                      ),
+                      Spacer(),
+                      // Nút xoá sản phẩm với xác nhận
+                      IconButton(
+                        icon: Icon(Icons.delete, color: Colors.redAccent),
+                        onPressed: () async {
+                          final confirm = await showDialog<bool>(
+                            context: context,
+                            builder: (context) => AlertDialog(
+                              title: Text('Xác nhận xoá'),
+                              content: Text('Bạn có chắc chắn muốn xoá sản phẩm này khỏi giỏ hàng?'),
+                              actions: [
+                                TextButton(
+                                  onPressed: () => Navigator.of(context).pop(false),
+                                  child: Text('Huỷ'),
+                                ),
+                                TextButton(
+                                  onPressed: () => Navigator.of(context).pop(true),
+                                  child: Text('Xoá', style: TextStyle(color: Colors.red)),
+                                ),
+                              ],
+                            ),
+                          );
+                          if (confirm == true) {
+                            await FirebaseFirestore.instance
+                                .collection('users')
+                                .doc(id)
+                                .collection('Cart')
+                                .doc(cartItemId)
+                                .delete();
+                            setState(() {});
+                            Flushbar(
+                              messageText: Center(
+                                child: Text(
+                                  'Đã xoá sản phẩm khỏi giỏ hàng!',
+                                  style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+                                ),
+                              ),
+                              backgroundColor: Colors.green,
+                              borderRadius: BorderRadius.circular(10),
+                              margin: EdgeInsets.all(12),
+                              duration: Duration(seconds: 2),
+                              flushbarPosition: FlushbarPosition.TOP,
+                              icon: Icon(Icons.check_circle, color: Colors.white),
+                            ).show(context);
+                          }
+                        },
+                      ),
                     ],
                   ),
                 ),
@@ -274,9 +323,20 @@ class _OrderState extends State<Order> {
                                         .doc(_selectedCartItemId)
                                         .update({'Total': newTotal.toString()});
                                     setState(() {});
-                                    ScaffoldMessenger.of(context).showSnackBar(
-                                      SnackBar(content: Text('Đã cập nhật số lượng!')),
-                                    );
+                                    Flushbar(
+                                      messageText: Center(
+                                        child: Text(
+                                          'Đã cập nhật số lượng!',
+                                          style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+                                        ),
+                                      ),
+                                      backgroundColor: Colors.green,
+                                      borderRadius: BorderRadius.circular(10),
+                                      margin: EdgeInsets.all(12),
+                                      duration: Duration(seconds: 2),
+                                      flushbarPosition: FlushbarPosition.TOP,
+                                      icon: Icon(Icons.check_circle, color: Colors.white),
+                                    ).show(context);
                                   },
                                   child: Container(
                                     padding: EdgeInsets.symmetric(vertical: 10.0),
@@ -337,9 +397,20 @@ class _OrderState extends State<Order> {
                   total = 0;
                   amount2 = 0;
                 });
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(content: Text('Thanh toán thành công. Giỏ hàng đã được làm mới!')),
-                );
+                Flushbar(
+                  messageText: Center(
+                    child: Text(
+                      'Thanh toán thành công. Giỏ hàng đã được làm mới!',
+                      style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+                    ),
+                  ),
+                  backgroundColor: Colors.green,
+                  borderRadius: BorderRadius.circular(10),
+                  margin: EdgeInsets.all(12),
+                  duration: Duration(seconds: 2),
+                  flushbarPosition: FlushbarPosition.TOP,
+                  icon: Icon(Icons.check_circle, color: Colors.white),
+                ).show(context);
               },
               child: Container(
                 padding: EdgeInsets.symmetric(vertical: 10.0),

@@ -9,6 +9,7 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
+  another_flushbar: ^1.12.30
   firebase_auth: ^5.6.0
   flutter_stripe: ^11.5.0
   curved_navigation_bar: ^1.0.6
