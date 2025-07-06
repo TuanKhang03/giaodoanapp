@@ -211,8 +211,28 @@ class _ProfileState extends State<Profile> {
             ),
             SizedBox(height: 20.0,),
             GestureDetector(
-              onTap: () {
-                AuthMethods().deleteUser();
+              onTap: () async {
+                final confirm = await showDialog<bool>(
+                  context: context,
+                  builder: (context) => AlertDialog(
+                    title: Text('Xác nhận xoá tài khoản'),
+                    content: Text('Bạn có chắc chắn muốn xoá tài khoản không?'),
+                    actions: [
+                      TextButton(
+                        onPressed: () => Navigator.of(context).pop(false),
+                        child: Text('Huỷ'),
+                      ),
+                      TextButton(
+                        onPressed: () => Navigator.of(context).pop(true),
+                        child: Text('Xoá', style: TextStyle(color: Colors.red)),
+                      ),
+                    ],
+                  ),
+                );
+                if (confirm == true) {
+                  await AuthMethods().deleteUser();
+                  Navigator.of(context).pushNamedAndRemoveUntil('/login', (route) => false);
+                }
               },
               child: Container(
               margin: EdgeInsets.symmetric(horizontal: 20.0),
@@ -246,7 +266,27 @@ class _ProfileState extends State<Profile> {
             SizedBox(height: 20.0,),
             GestureDetector(
               onTap: () async {
-                AuthMethods().SignOut();
+                final confirm = await showDialog<bool>(
+                  context: context,
+                  builder: (context) => AlertDialog(
+                    title: Text('Xác nhận đăng xuất'),
+                    content: Text('Bạn có chắc chắn muốn đăng xuất không?'),
+                    actions: [
+                      TextButton(
+                        onPressed: () => Navigator.of(context).pop(false),
+                        child: Text('Huỷ'),
+                      ),
+                      TextButton(
+                        onPressed: () => Navigator.of(context).pop(true),
+                        child: Text('Đăng xuất', style: TextStyle(color: Colors.red)),
+                      ),
+                    ],
+                  ),
+                );
+                if (confirm == true) {
+                  await AuthMethods().SignOut();
+                  Navigator.of(context).pushNamedAndRemoveUntil('/login', (route) => false);
+                }
               },
               child: Container(
               margin: EdgeInsets.symmetric(horizontal: 20.0),
