@@ -2,7 +2,11 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 
 class DatabaseMethods {
   // Cập nhật số lượng sản phẩm trong giỏ hàng
-  Future<void> updateCartQuantity(String userId, String cartItemId, int newQuantity) async {
+  Future<void> updateCartQuantity(
+    String userId,
+    String cartItemId,
+    int newQuantity,
+  ) async {
     final cartItemRef = FirebaseFirestore.instance
         .collection('users')
         .doc(userId)
@@ -10,14 +14,19 @@ class DatabaseMethods {
         .doc(cartItemId);
     await cartItemRef.update({'Quantity': newQuantity.toString()});
   }
+
   // Xoá toàn bộ món trong giỏ hàng của user
   Future<void> clearFoodCart(String id) async {
-    final cartRef = FirebaseFirestore.instance.collection('users').doc(id).collection('Cart');
+    final cartRef = FirebaseFirestore.instance
+        .collection('users')
+        .doc(id)
+        .collection('Cart');
     final cartItems = await cartRef.get();
     for (final doc in cartItems.docs) {
       await doc.reference.delete();
     }
   }
+
   Future addUserDetail(Map<String, dynamic> userInfoMap, String id) async {
     return await FirebaseFirestore.instance
         .collection('users')
@@ -46,9 +55,15 @@ class DatabaseMethods {
         .collection("Cart")
         .add(userInfoMap);
   }
+
   Future<Stream<QuerySnapshot>> getFoodCart(String id) async {
-    return FirebaseFirestore.instance.collection("users").doc(id).collection("Cart").snapshots();
+    return FirebaseFirestore.instance
+        .collection("users")
+        .doc(id)
+        .collection("Cart")
+        .snapshots();
   }
+
   Future addOrderForUser(Map<String, dynamic> orderData, String userId) async {
     return await FirebaseFirestore.instance
         .collection('users')
@@ -56,6 +71,7 @@ class DatabaseMethods {
         .collection('orders')
         .add(orderData);
   }
+
   Future createOrdersCollectionForUser(String userId) async {
     final ordersRef = FirebaseFirestore.instance
         .collection('users')
@@ -69,5 +85,17 @@ class DatabaseMethods {
     for (final doc in docs.docs) {
       await doc.reference.delete();
     }
+  }
+
+  Future<DocumentSnapshot<Map<String, dynamic>>> getOrderById(
+    String userId,
+    String orderId,
+  ) async {
+    return await FirebaseFirestore.instance
+        .collection('users')
+        .doc(userId)
+        .collection('orders')
+        .doc(orderId)
+        .get();
   }
 }

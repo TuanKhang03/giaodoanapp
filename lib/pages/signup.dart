@@ -7,7 +7,6 @@ import 'package:mobileapp/pages/service/database.dart';
 import 'package:mobileapp/widget/widget_support.dart';
 import 'package:random_string/random_string.dart';
 
-
 class SignUp extends StatefulWidget {
   const SignUp({super.key});
 
@@ -29,26 +28,18 @@ class _SignUpState extends State<SignUp> {
     try {
       UserCredential userCredential = await FirebaseAuth.instance
           .createUserWithEmailAndPassword(email: email, password: password);
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(
-            "Đăng kí thành công!",
-            style: TextStyle(fontSize: 20),
-          ),
-        ),
-      );
-      String Id = randomAlphaNumeric(10);
+      String userId = userCredential.user!.uid;
       Map<String, dynamic> addUserInfo = {
         "name": nameController.text,
         "Email": emailController.text,
         "wallet": "0",
-        "Id": Id,
+        "Id": userId, // lưu lại nếu muốn, nhưng docId phải là userId
       };
-      await DatabaseMethods().addUserDetail(addUserInfo, Id);
+      await DatabaseMethods().addUserDetail(addUserInfo, userId);
       await SharedPreferenceHelper().saveUserName(nameController.text);
       await SharedPreferenceHelper().saveUserEmail(emailController.text);
       await SharedPreferenceHelper().saveUserWallet('0');
-      await SharedPreferenceHelper().saveUserID(Id);
+      await SharedPreferenceHelper().saveUserID(userId);
       Navigator.pushReplacement(
         context,
         MaterialPageRoute(builder: (context) => buttonNav()),
@@ -58,10 +49,7 @@ class _SignUpState extends State<SignUp> {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             backgroundColor: Colors.redAccent,
-            content: Text(
-              "Mật khẩu quá yếu!",
-              style: TextStyle(fontSize: 18),
-            ),
+            content: Text("Mật khẩu quá yếu!", style: TextStyle(fontSize: 18)),
           ),
         );
       } else if (e.code == 'email đã được sử dụng') {
@@ -76,7 +64,7 @@ class _SignUpState extends State<SignUp> {
         );
       }
     }
-    }
+  }
 
   @override
   Widget build(BuildContext context) {

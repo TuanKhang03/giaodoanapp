@@ -3,6 +3,12 @@ import 'package:flutter/material.dart';
 import 'package:mobileapp/pages/detail.dart';
 import 'package:mobileapp/pages/service/database.dart';
 import 'package:mobileapp/widget/widget_support.dart';
+import 'package:mobileapp/pages/history_order.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+
+// Lấy userId hiện tại
+final user = FirebaseAuth.instance.currentUser;
+final userId = user?.uid ?? '';
 
 class Home extends StatefulWidget {
   const Home({super.key});
@@ -207,9 +213,32 @@ class _HomeState extends State<Home> {
                       color: Colors.black,
                       borderRadius: BorderRadius.circular(8),
                     ),
-                    child: Icon(
-                      Icons.shopping_cart_outlined,
-                      color: Colors.white,
+                    child: IconButton(
+                      icon: Icon(
+                        Icons.shopping_cart_outlined,
+                        color: Colors.white,
+                      ),
+                      onPressed: () async {
+                        final user = FirebaseAuth.instance.currentUser;
+                        final docId = user?.uid ?? '';
+                        if (docId.isEmpty) {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(
+                              content: Text(
+                                'Bạn cần đăng nhập để xem lịch sử đơn hàng!',
+                              ),
+                            ),
+                          );
+                          return;
+                        }
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) =>
+                                HistoryOrderPage(userId: docId),
+                          ),
+                        );
+                      },
                     ),
                   ),
                 ],
@@ -354,5 +383,33 @@ class _HomeState extends State<Home> {
         ),
       ],
     );
+  }
+
+  void getLatestOrder(BuildContext context) async {
+    final user = FirebaseAuth.instance.currentUser;
+    final userId = user?.uid ?? '';
+    if (userId.isEmpty) return;
+
+    // Lấy danh sách orders, lấy orderId mới nhất
+    final ordersSnapshot = await FirebaseFirestore.instance
+        .collection('users')
+        .doc(userId)
+        .collection('orders')
+        .orderBy('createdAt', descending: true)
+        .limit(1)
+        .get();
+
+    if (ordersSnapshot.docs.isNotEmpty) {
+      final latestOrderId = ordersSnapshot.docs.first.id;
+      final orderDoc = await DatabaseMethods().getOrderById(
+        userId,
+        latestOrderId,
+      );
+      if (orderDoc.exists) {
+        final orderData = orderDoc.data();
+        // Xử lý dữ liệu đơn hàng mới nhất ở đây
+        print('Đơn hàng mới nhất: $orderData');
+      }
+    }
   }
 }

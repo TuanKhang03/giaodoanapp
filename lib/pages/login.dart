@@ -1,3 +1,4 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:mobileapp/pages/buttonNav.dart';
@@ -19,36 +20,39 @@ class _LogInState extends State<LogIn> {
   TextEditingController userpasswordController = TextEditingController();
   userLogin() async {
     try {
-      await FirebaseAuth.instance.signInWithEmailAndPassword(
-        email: email,
-        password: password,
-      );
-      Navigator.push(
-        context,
-        MaterialPageRoute(builder: (context) => buttonNav()),
-      );
-    } on FirebaseAuthException catch (e) {
-      if (e.code == "user-not-found") {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            backgroundColor: Colors.redAccent,
-            content: Text(
-              "No User Found for that Email.",
-              style: TextStyle(fontSize: 18, color: Colors.black),
-            ),
-          ),
+      UserCredential userCredential = await FirebaseAuth.instance
+          .signInWithEmailAndPassword(email: email, password: password);
+
+      // Lấy userId từ Firebase Auth
+      String userId = userCredential.user!.uid;
+
+      // Lấy document user đã đăng ký từ Firestore
+      DocumentSnapshot userDoc = await FirebaseFirestore.instance
+          .collection('users')
+          .doc(userId)
+          .get();
+
+      if (userDoc.exists) {
+        // Đã có user, lấy thông tin user tại đây
+        Map<String, dynamic>? userData =
+            userDoc.data() as Map<String, dynamic>?;
+        print('Thông tin user: $userData');
+        // Tiếp tục chuyển trang hoặc lưu thông tin user nếu cần
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (context) => buttonNav()),
         );
-      } else if (e.code == 'wrong-password') {
+      } else {
+        // Không tìm thấy user, có thể show thông báo lỗi
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            backgroundColor: Colors.redAccent,
-            content: Text(
-              "Wrong Password Provided for that User",
-              style: TextStyle(fontSize: 18, color: Colors.black),
-            ),
-          ),
+          SnackBar(content: Text('Tài khoản chưa đăng ký trên hệ thống!')),
         );
       }
+    } on FirebaseAuthException catch (e) {
+      // Xử lý lỗi đăng nhập
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Đăng nhập thất bại: ${e.message}')),
+      );
     }
   }
 
