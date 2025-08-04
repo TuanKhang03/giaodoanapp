@@ -2,7 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:mobileapp/pages/buttonNav.dart';
-//import 'package:mobileapp/pages/forgotpassword.dart';
+import 'package:mobileapp/pages/forgotpassword.dart';
 import 'package:mobileapp/pages/signup.dart';
 import 'package:mobileapp/widget/widget_support.dart';
 
@@ -18,6 +18,10 @@ class _LogInState extends State<LogIn> {
   final _formKey = GlobalKey<FormState>();
   TextEditingController useremailController = TextEditingController();
   TextEditingController userpasswordController = TextEditingController();
+
+  // Thêm biến này
+  bool _obscurePassword = true;
+
   userLogin() async {
     try {
       UserCredential userCredential = await FirebaseAuth.instance
@@ -142,34 +146,45 @@ class _LogInState extends State<LogIn> {
                                 if (value == null || value.isEmpty) {
                                   return 'Vui lòng nhập mật khẩu';
                                 }
-
                                 return null;
                               },
-                              obscureText: true,
+                              obscureText: _obscurePassword,
                               decoration: InputDecoration(
                                 hintText: 'Mật khẩu',
                                 hintStyle: AppWidget.SemiBoldTextFeildStyle(),
                                 prefixIcon: Icon(Icons.password_outlined),
+                                suffixIcon: IconButton(
+                                  icon: Icon(
+                                    _obscurePassword
+                                        ? Icons.visibility_off
+                                        : Icons.visibility,
+                                  ),
+                                  onPressed: () {
+                                    setState(() {
+                                      _obscurePassword = !_obscurePassword;
+                                    });
+                                  },
+                                ),
                               ),
                             ),
-                            // SizedBox(height: 20),
-                            // GestureDetector(
-                            //   onTap: () {
-                            //     Navigator.push(
-                            //       context,
-                            //       MaterialPageRoute(
-                            //         builder: (context) => ForgotPassword(),
-                            //       ),
-                            //     );
-                            //   },
-                            //   child: Container(
-                            //     alignment: Alignment.topRight,
-                            //     child: Text(
-                            //       "Quên mật khẩu?",
-                            //       style: AppWidget.SemiBoldTextFeildStyle(),
-                            //     ),
-                            //   ),
-                            // ),
+                            SizedBox(height: 20),
+                            GestureDetector(
+                              onTap: () {
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (context) => ForgotPassword(),
+                                  ),
+                                );
+                              },
+                              child: Container(
+                                alignment: Alignment.topRight,
+                                child: Text(
+                                  "Quên mật khẩu?",
+                                  style: AppWidget.SemiBoldTextFeildStyle(),
+                                ),
+                              ),
+                            ),
                             SizedBox(height: 80),
                             GestureDetector(
                               onTap: () {

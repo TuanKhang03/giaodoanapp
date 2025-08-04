@@ -17,12 +17,14 @@ class SignUp extends StatefulWidget {
 class _SignUpState extends State<SignUp> {
   String email = "", password = "", name = "";
   TextEditingController nameController = TextEditingController();
-
   TextEditingController passwordController = TextEditingController();
-
+  TextEditingController confirmPasswordController = TextEditingController();
   TextEditingController emailController = TextEditingController();
-
   final _formKey = GlobalKey<FormState>();
+
+  // Thêm biến để điều khiển ẩn/hiện mật khẩu
+  bool _obscurePassword = true;
+  bool _obscureConfirmPassword = true;
 
   registration() async {
     try {
@@ -109,13 +111,13 @@ class _SignUpState extends State<SignUp> {
                       fit: BoxFit.cover,
                     ),
                   ),
-                  SizedBox(height: 50),
+                  SizedBox(height: 40),
                   Material(
                     elevation: 5,
                     borderRadius: BorderRadius.circular(20),
                     child: Container(
                       padding: EdgeInsets.only(left: 20, right: 20),
-                      height: MediaQuery.of(context).size.height / 2,
+                      height: MediaQuery.of(context).size.height / 1.7,
                       width: MediaQuery.of(context).size.width,
                       decoration: BoxDecoration(
                         color: Colors.white,
@@ -165,15 +167,59 @@ class _SignUpState extends State<SignUp> {
                               controller: passwordController,
                               validator: (value) {
                                 if (value == null || value.isEmpty) {
-                                  return 'Vui lòng nhập mat khẩu';
+                                  return 'Vui lòng nhập mật khẩu';
                                 }
                                 return null;
                               },
-                              obscureText: true,
+                              obscureText: _obscurePassword,
                               decoration: InputDecoration(
                                 hintText: 'Mật khẩu',
                                 hintStyle: AppWidget.SemiBoldTextFeildStyle(),
                                 prefixIcon: Icon(Icons.password_outlined),
+                                suffixIcon: IconButton(
+                                  icon: Icon(
+                                    _obscurePassword
+                                        ? Icons.visibility_off
+                                        : Icons.visibility,
+                                  ),
+                                  onPressed: () {
+                                    setState(() {
+                                      _obscurePassword = !_obscurePassword;
+                                    });
+                                  },
+                                ),
+                              ),
+                            ),
+                            SizedBox(height: 30),
+                            TextFormField(
+                              controller: confirmPasswordController,
+                              validator: (value) {
+                                if (value == null || value.isEmpty) {
+                                  return 'Vui lòng nhập lại mật khẩu';
+                                }
+                                if (value != passwordController.text) {
+                                  return 'Mật khẩu nhập lại không khớp';
+                                }
+                                return null;
+                              },
+                              obscureText: _obscureConfirmPassword,
+                              decoration: InputDecoration(
+                                hintText: 'Nhập lại mật khẩu',
+                                hintStyle: AppWidget.SemiBoldTextFeildStyle(),
+                                prefixIcon: Icon(Icons.password_outlined),
+                                suffixIcon: IconButton(
+                                  icon: Icon(
+                                    _obscureConfirmPassword
+                                        ? Icons.visibility_off
+                                        : Icons.visibility,
+                                  ),
+                                  onPressed: () {
+                                    setState(() {
+                                      _obscureConfirmPassword =
+                                          !_obscureConfirmPassword;
+                                    });
+                                  },
+                                ),
                               ),
                             ),
 
@@ -186,8 +232,8 @@ class _SignUpState extends State<SignUp> {
                                     password = passwordController.text;
                                     name = nameController.text;
                                   });
+                                  registration();
                                 }
-                                registration();
                               },
                               child: Material(
                                 elevation: 5,
